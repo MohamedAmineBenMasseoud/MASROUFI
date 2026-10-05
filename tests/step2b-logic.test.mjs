@@ -1,0 +1,41 @@
+import assert from "node:assert/strict";
+import { pressKey } from "../js/amountInput.js";
+import { canAfford } from "../js/calc.js";
+import { categoryLabel, expenseLabel } from "../js/expenses.js";
+import { setLanguage, t } from "../js/i18n.js";
+import en from "../js/lang/en.js";
+import fr from "../js/lang/fr.js";
+import ar from "../js/lang/ar.js";
+import { shouldConfirm, slideProgress } from "../js/slide.js";
+
+assert.equal(pressKey("5", "."), "5.");
+assert.equal(pressKey("5.5", "5"), "5.55");
+assert.equal(pressKey("5.55", "6"), "5.55");
+assert.equal(pressKey("123456", "7"), "123456");
+assert.equal(pressKey("0", "5"), "5");
+assert.equal(pressKey("", "."), "0.");
+assert.equal(pressKey("1", "back"), "");
+assert.equal(slideProgress(100, 16, 100), 0.84);
+assert.equal(slideProgress(100, 15, 100), 0.85);
+assert.equal(shouldConfirm(0.84), false);
+assert.equal(shouldConfirm(0.85), true);
+assert.equal(slideProgress(100, 150, 100), 0);
+assert.equal(slideProgress(100, -50, 100), 1);
+assert.equal(canAfford({ remaining: 24.5 }, 24.5), true);
+assert.equal(canAfford({ remaining: 24.5 }, 24.51), false);
+setLanguage("en");
+assert.equal(expenseLabel({ name: "Food", category: "Food" }), "Food");
+setLanguage("fr");
+assert.equal(expenseLabel({ name: "Food", category: "Food" }), "Nourriture");
+assert.equal(expenseLabel({ name: "Snack special", category: "Food" }), "Snack special");
+assert.equal(categoryLabel("Food"), "Nourriture");
+assert.deepEqual(Object.keys(en).sort(), Object.keys(fr).sort());
+assert.deepEqual(Object.keys(en).sort(), Object.keys(ar).sort());
+for (const key of ["addExpense.title", "addExpense.back", "addExpense.delete", "addExpense.categories", "addExpense.keypad", "addExpense.slide", "addExpense.left", "addExpense.zero", "addExpense.tooHigh", "category.Food", "category.Water", "category.Transport", "category.Study", "category.Phone", "category.Other"]) {
+  assert.ok(en[key] && fr[key] && ar[key], `missing translation ${key}`);
+}
+assert.equal(en["addExpense.title"], "Add expense");
+assert.equal(fr["addExpense.title"], "Ajouter une dépense");
+assert.equal(ar["addExpense.title"], "إضافة مصروف");
+assert.equal(t("addExpense.left", { x: "24.50" }), "Reste cette semaine : 24.50 TND");
+console.log("PASS step2b pure logic and translation tests");
